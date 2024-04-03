@@ -308,3 +308,34 @@ SELECT P.pedido_id, P.fecha, P.total_pedido, C.calificacion, C.opinion
 FROM Pedidos P
 JOIN Calificaciones C ON P.local_id = C.local_id
 WHERE C.calificacion < 6;
+
+DROP FUNCTION IF EXISTS CalificacionPorLocal;
+DELIMITER //
+
+CREATE FUNCTION CalificacionPorLocal(local_id INT) 
+RETURNS DECIMAL(4, 2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE calificacion_promedio DECIMAL(4, 2);
+    SELECT AVG(calificacion) INTO calificacion_promedio FROM calificaciones WHERE local_id = local_id;
+    RETURN calificacion_promedio;
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS VentasPorLocal;
+DELIMITER //
+
+CREATE FUNCTION VentasPorLocal(local_id INT) 
+RETURNS DECIMAL(11, 2)
+READS SQL DATA
+BEGIN
+    DECLARE total_ventas DECIMAL(11, 2);
+    
+    SELECT SUM(total_pedido) INTO total_ventas
+    FROM pedidos
+    WHERE local_id = local_id;
+    
+    RETURN total_ventas;
+END //
+DELIMITER ;
